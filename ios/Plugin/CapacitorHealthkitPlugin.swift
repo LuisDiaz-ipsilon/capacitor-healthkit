@@ -8,6 +8,7 @@ var healthStore = HKHealthStore()
  * Please read the Capacitor iOS Plugin Development Guide
  * here: https://capacitorjs.com/docs/plugins/ios
  */
+@available(iOS 16.0, *)
 @objc(CapacitorHealthkitPlugin)
 public class CapacitorHealthkitPlugin: CAPPlugin {
 
@@ -288,7 +289,18 @@ public class CapacitorHealthkitPlugin: CAPPlugin {
                 let sleepED = sample.endDate as NSDate
                 let sleepInterval = sleepED.timeIntervalSince(sleepSD as Date)
                 let sleepHoursBetweenDates = sleepInterval / 3600
-                let sleepState = (sample.value == HKCategoryValueSleepAnalysis.inBed.rawValue) ? "InBed" : "Asleep"
+                let sleepState: String
+                if sample.value == HKCategoryValueSleepAnalysis.inBed.rawValue {
+                    sleepState = "InBed"
+                } else if sample.value == HKCategoryValueSleepAnalysis.asleep.rawValue {
+                    sleepState = "Asleep"
+                } else if sample.value == HKCategoryValueSleepAnalysis.asleepREM.rawValue {
+                    sleepState = "AsleepREM"
+                } else if sample.value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue{
+                    sleepState = "AsleepDeep"
+                } else {
+                    sleepState = "AsleepUnspecified"
+                }
                 let constructedSample: [String: Any] = [
                     "uuid": sample.uuid.uuidString,
                     "timeZone": getTimeZoneString(sample: sample) as String,
