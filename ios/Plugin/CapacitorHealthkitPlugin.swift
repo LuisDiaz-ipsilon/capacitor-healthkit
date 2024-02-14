@@ -60,7 +60,7 @@ public class CapacitorHealthkitPlugin: CAPPlugin {
         case "weight":
             return HKQuantityType.quantityType(forIdentifier: HKQuantityTypeIdentifier.bodyMass)!
         case "heartRate":
-             return HKQuantityType.quantityType(forIdentifier: HKQuantityTypeIdentifier.heartRate)!
+             return HKQuantityType.quantityType(forIdentifier: .heartRate)
         default:
             return nil
         }
@@ -90,7 +90,7 @@ public class CapacitorHealthkitPlugin: CAPPlugin {
             case "weight":
                 types.insert(HKQuantityType.quantityType(forIdentifier: HKQuantityTypeIdentifier.bodyMass)!)
             case "heartRate":
-                 types.insert(HKQuantityType.quantityType(forIdentifier: HKQuantityTypeIdentifier.heartRate)!)
+                 types.insert(HKQuantityType.quantityType(forIdentifier: .heartRate)!)
             default:
                 print("no match in case: " + item)
             }
@@ -475,8 +475,11 @@ public class CapacitorHealthkitPlugin: CAPPlugin {
 
         let writeTypes: Set<HKSampleType> = getTypes(items: _write).union(getTypes(items: _all))
         let readTypes: Set<HKSampleType> = getTypes(items: _read).union(getTypes(items: _all))
+        let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate)!
+        
+        let allReadTypes = readTypes.union([heartRateType])
 
-        healthStore.requestAuthorization(toShare: writeTypes, read: readTypes) { success, _ in
+        healthStore.requestAuthorization(toShare: writeTypes, read: allReadTypes) { success, _ in
             if !success {
                 call.reject("Could not get permission")
                 return
