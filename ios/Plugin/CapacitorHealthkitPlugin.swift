@@ -61,6 +61,10 @@ public class CapacitorHealthkitPlugin: CAPPlugin {
             return HKQuantityType.quantityType(forIdentifier: HKQuantityTypeIdentifier.bodyMass)!
         case "heartRate":
              return HKQuantityType.quantityType(forIdentifier: .heartRate)
+        case "bloodPressureSystolic":
+            return HKQuantityType.quantityType(forIdentifier: .bloodPressureSystolic)
+        case "bloodPressureDiastolic":
+            return HKQuantityType.quantityType(forIdentifier: .bloodPressureDiastolic)
         default:
             return nil
         }
@@ -91,6 +95,9 @@ public class CapacitorHealthkitPlugin: CAPPlugin {
                 types.insert(HKQuantityType.quantityType(forIdentifier: HKQuantityTypeIdentifier.bodyMass)!)
             case "heartRate":
                  types.insert(HKQuantityType.quantityType(forIdentifier: .heartRate)!)
+            case "bloodPressure":
+                types.insert(HKQuantityType.quantityType(forIdentifier: .bloodPressureSystolic)!)
+                types.insert(HKQuantityType.quantityType(forIdentifier: .bloodPressureDiastolic)!)
             default:
                 print("no match in case: " + item)
             }
@@ -407,6 +414,12 @@ public class CapacitorHealthkitPlugin: CAPPlugin {
                 } else if sample.quantityType.is(compatibleWith: HKUnit.moleUnit(withMolarMass: HKUnitMolarMassBloodGlucose).unitDivided(by: HKUnit.literUnit(with: .kilo))) {
                     unit = HKUnit.moleUnit(withMolarMass: HKUnitMolarMassBloodGlucose).unitDivided(by: HKUnit.literUnit(with: .kilo))
                     unitName = "mmol/L"
+                } else if sampleName == "bloodPressureSystolic" {
+                    unit = HKUnit.millimeterOfMercury()
+                    unitName = "mmHg"
+                } else if sampleName == "bloodPressureDiastolic" {
+                    unit = HKUnit.millimeterOfMercury()
+                    unitName = "mmHg"
                 } else {
                     print("Error: unknown unit type")
                 }
@@ -476,8 +489,10 @@ public class CapacitorHealthkitPlugin: CAPPlugin {
         let writeTypes: Set<HKSampleType> = getTypes(items: _write).union(getTypes(items: _all))
         let readTypes: Set<HKSampleType> = getTypes(items: _read).union(getTypes(items: _all))
         let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate)!
+        let bloodPressureSystolicType = HKObjectType.quantityType(forIdentifier: .bloodPressureSystolic )!
+        let bloodPressureDiastolicType = HKObjectType.quantityType(forIdentifier: .bloodPressureDiastolic )!
         
-        let allReadTypes = readTypes.union([heartRateType])
+        let allReadTypes = readTypes.union([heartRateType, bloodPressureSystolicType, bloodPressureDiastolicType])
 
         healthStore.requestAuthorization(toShare: writeTypes, read: allReadTypes) { success, _ in
             if !success {
